@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
             complex<double> c(xScaled, yScaled);
             double iterationCount = calculateMandelbrot(c);
-            localColorArray[x][y] = findColor(iterationCount);
+            localColorArray[x][y-startHeight] = findColor(iterationCount);
 
         }
     }
