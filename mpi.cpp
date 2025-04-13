@@ -1,4 +1,4 @@
-// compile with mpixx -g -Wall mpi.cpp -L/usr/X11R6/lib -lm -lpthread -lX11
+// compile with mpicxx -g -Wall mpi.cpp -L/usr/X11R6/lib -lm -lpthread -lX11
 // run with mpiexec --n <processors> ./a.out <width> <height> <name>
 // also make sure cimg is installed
 // usage:
@@ -44,10 +44,7 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(mainComm, &rank);
     int width, height;
     string filename;
-    vector<vector<Color>> colorArray;
-
-    CImg<float> mandelbrotImage;
-
+    Color* gatheredColors = nullptr;
 
     if(rank == 0)
     {
@@ -60,13 +57,13 @@ int main(int argc, char *argv[])
         width = atoi(argv[1]);
         height = atoi(argv[2]);
         filename = argv[3];
-        vector<vector<Color>> colorArray(width, vector<Color>(height));
+        gatheredColors = new Color[width * height];
 
         // width and height are obvious
         // 1 represents the depth (image dimension across z index, so obviously just one)
         // 3 is the color spectrum - RGB coded in this case
         // 0 floods the whole initial image with black (not sure this is true xd)
-        mandelbrotImage(width, height, 1, 3, 0);
+
     }
 
     double startTime, elapsedTime;
@@ -78,39 +75,49 @@ int main(int argc, char *argv[])
 
     int localHeight = height/numberOfProcessors; //range of workelapsedTime
     int startHeight = rank * localHeight;    //where it starts
-    int endHeight = localHeight * (rank+1); //where it ends
+    // int endHeight = localHeight * (rank+1); //where it ends
 
-    Color localColorArray[width][localHeight];
+    Color* localColorArray = new Color[width * localHeight];
     for(int x = 0; x < width; x++)
     {
-        for(int y = startHeight; y < endHeight; y++)
+        for(int y = 0; y < localHeight; y++)
         {
             // in localcolorarray, it needs to save starting at 0, but the iterating still has to be done from startHeight to endHeight...
             double xScaled = xMin + x*(xMax - xMin) / width;
-            double yScaled = yMin + y*(yMax - yMin) / localHeight;
-
+            double yScaled = yMin + (y+startHeight) * (yMax - yMin) / height;
+            // cout << "Calculating" << x << " " << y << endl;
             complex<double> c(xScaled, yScaled);
             double iterationCount = calculateMandelbrot(c);
-            localColorArray[x][y-startHeight] = findColor(iterationCount);
+            localColorArray[y * width + x] = findColor(iterationCount);
 
         }
     }
 
 
     MPI_Datatype MPI_COLOR_TYPE = create_mpi_color_type();
-    MPI_Gather(localColorArray, width * localHeight, MPI_COLOR_TYPE, &colorArray, width * height, MPI_COLOR_TYPE, 0, mainComm);
+    MPI_Gather(localColorArray, width * localHeight, MPI_COLOR_TYPE, gatheredColors, width * localHeight, MPI_COLOR_TYPE, 0, mainComm);
+    delete[] localColorArray;
 
     elapsedTime = MPI_Wtime() - startTime;
 
     if(rank == 0)
     {
-        for(int x = 0; x < width; x++)
-        {
-            for(int y = startHeight; y < endHeight; y++)
-            {
-                mandelbrotImage.draw_point(x, y, vector<double>{colorArray[x][y].h, colorArray[x][y].s, colorArray[x][y].v}.data());
+        CImg<float> mandelbrotImage(width, height, 1, 3, 0);
+        // unpacking gatheredColors:
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // cout << "Drawing at " << x << " " << y << " with " << gatheredColors[y * width + x].v << endl ;
+                mandelbrotImage.draw_point(x, y,
+                    vector<double>{
+                        gatheredColors[y * width + x].h,
+                        gatheredColors[y * width + x].s,
+                        gatheredColors[y * width + x].v
+                    }.data()
+                );
             }
         }
+        delete[] gatheredColors;
 
         mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
         cout << "Total time to find: " << elapsedTime;
