@@ -58,12 +58,6 @@ int main(int argc, char *argv[])
         height = atoi(argv[2]);
         filename = argv[3];
         gatheredColors = new Color[width * height];
-
-        // width and height are obvious
-        // 1 represents the depth (image dimension across z index, so obviously just one)
-        // 3 is the color spectrum - RGB coded in this case
-        // 0 floods the whole initial image with black (not sure this is true xd)
-
     }
 
     double startTime, elapsedTime;
@@ -75,17 +69,14 @@ int main(int argc, char *argv[])
 
     int localHeight = height/numberOfProcessors; //range of workelapsedTime
     int startHeight = rank * localHeight;    //where it starts
-    // int endHeight = localHeight * (rank+1); //where it ends
 
     Color* localColorArray = new Color[width * localHeight];
     for(int x = 0; x < width; x++)
     {
         for(int y = 0; y < localHeight; y++)
         {
-            // in localcolorarray, it needs to save starting at 0, but the iterating still has to be done from startHeight to endHeight...
             double xScaled = xMin + x*(xMax - xMin) / width;
             double yScaled = yMin + (y+startHeight) * (yMax - yMin) / height;
-            // cout << "Calculating" << x << " " << y << endl;
             complex<double> c(xScaled, yScaled);
             double iterationCount = calculateMandelbrot(c);
             localColorArray[y * width + x] = findColor(iterationCount);
@@ -103,11 +94,9 @@ int main(int argc, char *argv[])
     if(rank == 0)
     {
         CImg<float> mandelbrotImage(width, height, 1, 3, 0);
-        // unpacking gatheredColors:
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                // cout << "Drawing at " << x << " " << y << " with " << gatheredColors[y * width + x].v << endl ;
                 mandelbrotImage.draw_point(x, y,
                     vector<double>{
                         gatheredColors[y * width + x].h,
