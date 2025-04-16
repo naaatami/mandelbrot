@@ -1,83 +1,80 @@
 """
 serial mandelbrot python implementation
-Mason
 
 Wanted to get a better grasp on the implementation before jumping into c++
-No need for any special outputs, just enough to prove it is in fact calculating the mandelbrot set
 
-If you want to make the increment value smaller to get a better image resolution, I'd recommend using the outfile instead of the terminal but that's just me
+updated to generate images instead of the ascii art output
+will need to play around with the coloing at some point but it works for now
+
 """
 import time
-start = time.time() #get starting time to help time the program
+from PIL import Image
+import numpy as np
+from math import log, log2
+
+start = time.time()
 
 
-boundary = 2 #set the boundary for the mandelbrot window, -2 -> 2 is the common one used
-increment_value = 0.05 #make this smaller to get a better "resolution" for the ascii art output
+real_number_resolution = 500
+imag_number_resolution = 500
 
-real_lower_bound = boundary * -1 #use the previously defined boundary to get the boundaries for each real, imaginary, upper, and lower boundaries
-real_upper_bound = boundary
-imag_lower_bound = boundary * -1
-imag_upper_bound = boundary
-increment_count = int((boundary * 2) // increment_value) #calculate the number of increments required based on the boundary size and increment values
+real_min = -2.1
+real_max = 0.6
+imag_min = -2
+imag_max = 2
 
-#define an output filepath and return the outfile
-def get_file():
-    output_file_path = "mandelbrot_out.txt"
-    file = open(output_file_path, "w")
-    return file
+real_increment_value = (real_max - real_min) / real_number_resolution
+imag_increment_value = (imag_max - imag_min) / imag_number_resolution
+max_iterations = 100
+max_color_value = 256
 
-#checks if a given complex number is a part of the mandelbrot set
-def check_mandelbrot_validity(c:complex):
-
-    boundary = 2 #this one should stay the same, as it is commonly accepted to be the "point of no return" for mandelbrot calculations
-    max_iterations = 100 #could increase this number, especially when demonstrating the power of multithreading
-
-    z = complex(0, 0) #starting point for the mandelbrot set is always 0,0
-    cur_iterations = 0 
-
-    #while the z value is not more than 2 units from the origin (abs does vector math on complex numbers), and while we have not reached the designated number of iterations
+"""
+takes a complex number and returns the number of iterations required to reach 
+the boundary or returns 100 if complex number is considered part of the mandelbrot set
+"""
+def get_mandelbrot_iterations(c:complex)->int:
+    boundary = 2  #generally accepted boundary for mandelbrot calculations
+    z = complex(0, 0)
+    cur_iterations = 0
     while(abs(z) < boundary and max_iterations > cur_iterations):
-        z = (z**2) + c #square the Z value and add the c value
-        cur_iterations += 1 #increment the iteration count
-    if cur_iterations == max_iterations: #if we have reached the end of the iteration count and we have broken free of the loop, then number is part of the set
-        return True
-    return False #otherwise it is not part of the set
+        z = (z**2) + c
+        cur_iterations += 1
 
-#prints the mandelbrot set in the terminal
-def terminal_print_mandelbrot(mandelbrot:list):
-    for line in mandelbrot:
-        for val in line:
-            if val:
-                print("#", end=" ")
-            else:
-                print(" ", end=" ")
-        print("")
+    #normalized = normalize_iteration_value(cur_iterations, z)
+    return cur_iterations, z
 
-#prints the mandelbrot set in the outfile
-def write_mandelbrot_to_outfile(mandelbrot:list):
-    file = get_file()
-    for line in mandelbrot:
-        for val in line:
-            if val:
-                file.write("# ")
-            else:
-                file.write("  ")
-        file.write("\n")
-    file.close()
+#used to make the output picture look nicer and remove the "waves" that sometimes appear
+def normalize_iteration_value(iteration_count, z):
+    if(iteration_count == max_iterations):
+        return 0
+    
+
+#used to make the output picture look nicer, original function created by Natalie
+def find_color(iteration_count, z):
+    if (iteration_count == max_iterations):
+        return (0, 0, 0)  # Black for points inside the Mandelbrot set
+    iteration_count = iteration_count + 1 - log2(log(abs(z)) * 0.5)
+    t = iteration_count / max_iterations
+    r = max(0, int(9 * (1 - t) * t**3 * 255))
+    g = max(0, int(15 * (1 - t)**2 * t**2 * 255))
+    b = max(0, int(8.5 * (1 - t)**3 * t * 255))
+    
+    return (r, g, b)
 
 
-mandelbrot = []
 
-for i in range(increment_count):
-    temp_list = []
-    for ii in range(increment_count):
-        c = complex((ii*increment_value)-boundary, (i*increment_value)-boundary)
-        temp_list.append(check_mandelbrot_validity(c))
-    mandelbrot.append(temp_list)
+image_array = np.zeros((imag_number_resolution, real_number_resolution, 3), dtype=np.uint8)
 
-
-terminal_print_mandelbrot(mandelbrot)
-#write_mandelbrot_to_outfile(mandelbrot)
+cur_imag_val = imag_min #loop through the imaginary values until we hit the max imaginary value
+for imag in range(imag_number_resolution):
+    for real in range(real_number_resolution):
+        c = complex((real * real_increment_value) + real_min, (imag * imag_increment_value) + imag_min)
+        normalized_iteration_count, z = get_mandelbrot_iterations(c)
+        image_array[imag][real] = find_color(normalized_iteration_count, z)
 
 end = time.time()
 print(f"Runtime: {end-start}")
+
+
+image = Image.fromarray(image_array)
+image.show()
