@@ -8,6 +8,7 @@
 #include <climits>
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 using namespace cimg_library;
 using namespace std;
@@ -42,6 +43,12 @@ int main(int argc, char *argv[])
     // 0 floods the whole initial image with black (not sure this is true xd)
     CImg<float> mandelbrotImage(width, height, 1, 3, 0);
 
+    time_t start, end;
+    double elapsed;
+
+    time(&start);
+
+
     for(int x = 0; x < width; x++)
     {
         for(int y = 0; y < height; y++)
@@ -55,6 +62,10 @@ int main(int argc, char *argv[])
             mandelbrotImage.draw_point(x, y, color.data());
         }
     }
+
+    time(&end);
+
+    elapsed = double(end - start);
 
     mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
 
