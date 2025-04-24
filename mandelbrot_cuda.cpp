@@ -3,14 +3,20 @@
 // usage:
 #include "CImg.h"
 #include "Color.h"
-#include "cuda.cu"
 #include <complex.h>
 #include <cmath>
 #include <iostream>
 #include <climits>
 #include <iostream>
 #include <vector>
-#include "mandelbrot.cu"
+#include "mandelbrot.cuh"
+
+double xMin = -2.1;
+double xMax = 0.6;
+double yMin = -1.2;
+double yMax = 1.2;
+const int maxIterations = 100;
+const int limit = 4;
 
 using namespace cimg_library;
 using namespace std;
@@ -32,28 +38,20 @@ int main(int argc, char *argv[])
 
     CImg<float> mandelbrotImage(width, height, 1, 3, 0);
 
-    // for(int x = 0; x < width; x++)
-    // {
-    //     for(int y = 0; y < height; y++)
-    //     {
-    //         double xScaled = xMin + x*(xMax - xMin) / width;
-    //         double yScaled = yMin + y*(yMax - yMin) / height;
-
-    //         complex<double> c(xScaled, yScaled);
-    //         double iterationCount = calculateMandelbrot(c);
-    //         vector<double> color = findColor(iterationCount);
-    //         
-    //     }
-    // }
-
-    color* balls;
-    balls = Wrapper::wrapper(width, height);
+    Color* balls;
+    balls = Wrapper::wrapper(balls, width, height, xMin, xMax, yMax, yMin, limit, maxIterations);
 
     for(int x = 0; x < width; x++)
     {
         for(int y = 0; y < height; y++)
         {
-            mandelbrotImage.draw_point(x, y, balls[y * width + x].data());
+            mandelbrotImage.draw_point(x, y,
+                vector<double>{
+                    balls[y * width + x].h,
+                    balls[y * width + x].s,
+                    balls[y * width + x].v
+                }.data()
+            );
         }
     }
 

@@ -5,19 +5,12 @@
 #include <cuComplex.h>
 
 // these values are all set a bit weird to crop better and add some margins - parts are cut off if you round these off to "nicer" numbers
-double xMin = -2.1;
-double xMax = 0.6;
-double yMin = -1.2;
-double yMax = 1.2;
-
-const int maxIterations = 100;
-const int limit = 4;
 
 
-__device__ double calculateMandelbrot(cuDoubleComplex c);
-__global__ void findMandelbrotImage(Color* colors, int width, int height);
-__device__ Color findColor(double iterationCount);
+__device__ double calculateMandelbrot(cuDoubleComplex c, int limit, int maxIterations);
+__global__ void findMandelbrotImage(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax);
+__device__ Color findColor(double iterationCount, int maxIterations);
 
 namespace Wrapper {
-    Color* wrapper(Color* colors, int width, int height);
+    Color* wrapper(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax, int limit, int maxIterations);
 }
