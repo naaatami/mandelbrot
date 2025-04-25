@@ -11,6 +11,5 @@ __device__ double calculateMandelbrot(cuDoubleComplex c, int limit, int maxItera
 __global__ void findMandelbrotImage(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax);
 __device__ Color findColor(double iterationCount, int maxIterations);
 
-namespace Wrapper {
-    Color* wrapper(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax, int limit, int maxIterations);
-}
+
+Color* wrapper(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax, int limit, int maxIterations);

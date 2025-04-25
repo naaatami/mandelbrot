@@ -21,11 +21,11 @@ const int limit = 4;
 using namespace cimg_library;
 using namespace std;
 
-double calculateMandelbrot(complex<double> c);
-vector<double> findColor(double iterationCount);
 
 int main(int argc, char *argv[])
 {
+
+    printf("okay");
     if(argc != 4)
     {
         cout << "Give me more arguments you loser!!\n";
@@ -35,27 +35,31 @@ int main(int argc, char *argv[])
     int width = atoi(argv[1]);
     int height = atoi(argv[2]);
     string filename = argv[3];
-
+    printf("okay");
     CImg<float> mandelbrotImage(width, height, 1, 3, 0);
 
-    Color* balls;
-    balls = Wrapper::wrapper(balls, width, height, xMin, xMax, yMax, yMin, limit, maxIterations);
 
+    
+    Color* balls;
+    balls = wrapper(balls, width, height, xMin, xMax, yMax, yMin, limit, maxIterations);
+    printf("\nokay\n");
     for(int x = 0; x < width; x++)
     {
         for(int y = 0; y < height; y++)
         {
-            mandelbrotImage.draw_point(x, y,
-                vector<double>{
-                    balls[y * width + x].h,
-                    balls[y * width + x].s,
-                    balls[y * width + x].v
-                }.data()
-            );
+            // mandelbrotImage.draw_point(x, y,
+            //     vector<double>{
+            //         balls[y * width + x].h,
+            //         balls[y * width + x].s,
+            //         balls[y * width + x].v
+            //     }.data()
+            // );
+
+            printf("\n%f\n",balls[x*width + y].h);
         }
     }
 
-    mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
+    //mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
     
 
 

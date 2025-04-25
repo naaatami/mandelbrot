@@ -22,17 +22,17 @@ __global__ void findMandelbrotImage(Color* colors, int width, int height, double
     }
 }
 
-namespace Wrapper {
-	Color* wrapper(Color* colors, int width, int height, double xMax, double xMin, double yMax, double yMin, int limit, int maxIterations)
-	{
-        cudaMallocManaged(&colors, width * height * sizeof(double));
-        int numThreads = 10; //change this obviously.
-        int numBlocks = ceil((double)(width*height)/numThreads);
-        // numBlocks = ur mom
-		findMandelbrotImage<<<numBlocks, numThreads>>>(colors, width, height,xMin,xMax,yMin,yMax,limit, maxIterations);
-        return colors;
-	} 
-}
+
+Color* wrapper(Color* colors, int width, int height, double xMax, double xMin, double yMax, double yMin, int limit, int maxIterations)
+{
+    cudaMallocManaged(&colors, width * height * sizeof(double));
+    int numThreads = 10; //change this obviously.
+    int numBlocks = ceil((double)(width*height)/numThreads);
+    // // numBlocks = ur mom
+    findMandelbrotImage<<<numBlocks, numThreads>>>(colors, width, height,xMin,xMax,yMin,yMax,limit, maxIterations);
+    return colors;
+} 
+
 
 __device__ double calculateMandelbrot(cuDoubleComplex c, int limit, int maxIterations)
 {
