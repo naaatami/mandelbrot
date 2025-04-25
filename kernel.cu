@@ -25,11 +25,18 @@ __global__ void findMandelbrotImage(Color* colors, int width, int height, double
 
 Color* wrapper(Color* colors, int width, int height, double xMax, double xMin, double yMax, double yMin, int limit, int maxIterations)
 {
-    cudaMallocManaged(&colors, width * height * sizeof(double));
-    int numThreads = 10; //change this obviously.
-    int numBlocks = ceil((double)(width*height)/numThreads);
-    // // numBlocks = ur mom
-    findMandelbrotImage<<<numBlocks, numThreads>>>(colors, width, height,xMin,xMax,yMin,yMax,limit, maxIterations);
+    cudaError_t error = cudaMallocManaged(&colors, width * height * sizeof(Color) * sizeof(double));
+    // printf(error);
+    dim3 blockDim(32, 32); //each block will have 32x32 threads
+    // dim3 gridDim = (ceil(double(width/blockDim.x)), ceil(double(height/blockDim.y)));
+    dim3 gridDim(
+        (width + blockDim.x - 1) / blockDim.x,
+        (height + blockDim.y - 1) / blockDim.y
+    );
+    // dim3 gridDim((width+blockDim.x - 1)/ blockDim.x), (height+blockDim.y -1)/blockDim.y);
+    // int numBlocks = ceil((double)(width*height)/numThreads);
+    findMandelbrotImage<<<gridDim, blockDim>>>(colors, width, height,xMin,xMax,yMin,yMax,limit, maxIterations);
+    cudaDeviceSynchronize(); //WE NEED TO WAIT, OR ELSE IT RETURNS GARBAGE DATA
     return colors;
 } 
 

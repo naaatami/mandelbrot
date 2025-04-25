@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <cuComplex.h>
 
-// these values are all set a bit weird to crop better and add some margins - parts are cut off if you round these off to "nicer" numbers
-
 
 __device__ double calculateMandelbrot(cuDoubleComplex c, int limit, int maxIterations);
 __global__ void findMandelbrotImage(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax);
