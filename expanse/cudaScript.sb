@@ -1,0 +1,18 @@
+#!/bin/bash
+#SBATCH --job-name="program"
+#SBATCH --output="cuda.%j.%N.txt"
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=20
+#SBATCH --gpus=1                      
+#SBATCH --mem=10GB
+#SBATCH --account=isu102
+#SBATCH --export=ALL
+#SBATCH -t 00:20:00
+
+./program 10000 10000 test.png
+./program 8000 8000 test.png
+./program 6000 6000 test.png
+./program 4000 4000 test.png
+./program 1000 1000 test.png
+./program 500 500 test.png

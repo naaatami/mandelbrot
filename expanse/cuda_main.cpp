@@ -10,6 +10,8 @@
 #include <iostream>
 #include <vector>
 #include "mandelbrot.cuh"
+#include <chrono>
+#include "time.h"
 
 double xMin = -2.1;
 double xMax = 0.6;
@@ -36,29 +38,33 @@ int main(int argc, char *argv[])
     string filename = argv[3];
     CImg<float> mandelbrotImage(width, height, 1, 3, 0);
 
-
+    clock_t start, end;
+    double elapsed;
+    start = clock();
     
-    Color* balls;
-    balls = wrapper(balls, width, height, xMin, xMax, yMax, yMin, limit, maxIterations);
+    Color* colors;
+    colors = wrapper(width, height, xMin, xMax, yMax, yMin, limit, maxIterations);
     for(int x = 0; x < width; x++)
     {
         for(int y = 0; y < height; y++)
         {
             mandelbrotImage.draw_point(x, y,
                 vector<double>{
-                    balls[y * width + x].h,
-                    balls[y * width + x].s,
-                    balls[y * width + x].v
+                    colors[y * width + x].h,
+                    colors[y * width + x].s,
+                    colors[y * width + x].v
                 }.data()
             );
-
-            // printf("\n%f\n",balls[x*width + y].h);
         }
     }
 
-    mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
+    // mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
+    end = clock();
+    elapsed = double(end - start)/CLOCKS_PER_SEC;
+    cout << "Total time to find: " << elapsed << endl;
     
 
 
     return 0;
 }
+

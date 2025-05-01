@@ -7,11 +7,9 @@
 #include <cmath>
 #include <iostream>
 #include <climits>
-#include <iostream>
 #include <vector>
 #include <mpi.h>
 #include <tuple>
-
 using namespace cimg_library;
 using namespace std;
 
@@ -96,20 +94,20 @@ int main(int argc, char *argv[])
         CImg<float> mandelbrotImage(width, height, 1, 3, 0);
 
         for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                mandelbrotImage.draw_point(x, y,
-                    vector<double>{
-                        gatheredColors[y * width + x].h,
-                        gatheredColors[y * width + x].s,
-                        gatheredColors[y * width + x].v
-                    }.data()
-                );
-            }
-        }
+         for (int y = 0; y < height; y++) {
+         mandelbrotImage.draw_point(x, y,
+          vector<double>{
+             gatheredColors[y * width + x].h,
+               gatheredColors[y * width + x].s,
+                 gatheredColors[y * width + x].v
+             }.data()
+             );
+           }
+         }
         delete[] gatheredColors;
 
-        mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
-        cout << "Total time to find: " << elapsedTime;
+        //  mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
+        cout << "Total time to find: " << elapsedTime << endl;
     }
 
     MPI_Finalize();

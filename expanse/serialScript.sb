@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH --job-name="serial"
+#SBATCH --output="serial.%j.%N.txt"
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=20
+#SBATCH --account=isu102
+#SBATCH --export=ALL
+#SBATCH -t 00:20:00
+
+./serial 10000 10000 test.png
+./serial 8000 8000 test.png
+./serial 6000 6000 test.png
+./serial 4000 4000 test.png
+./serial 1000 1000 test.png
+./serial 500 500 test.png

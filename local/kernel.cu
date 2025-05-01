@@ -19,14 +19,15 @@ __global__ void findMandelbrotImage(Color* colors, int width, int height, double
         double iterationCount = calculateMandelbrot(c, limit, maxIterations);
         Color color = findColor(iterationCount, maxIterations);
         colors[y * width + x] = color;
+        // printf("test %f", colors[y * width + x].h);
     }
 }
 
 
-Color* wrapper(Color* colors, int width, int height, double xMax, double xMin, double yMax, double yMin, int limit, int maxIterations)
+Color* wrapper(int width, int height, double xMax, double xMin, double yMax, double yMin, int limit, int maxIterations)
 {
-    cudaError_t error = cudaMallocManaged(&colors, width * height * sizeof(Color) * sizeof(double));
-    // printf(error);
+    Color* colors;
+    cudaMallocManaged(&colors, width * height * sizeof(Color));
     dim3 blockDim(32, 32); //each block will have 32x32 threads
     // dim3 gridDim = (ceil(double(width/blockDim.x)), ceil(double(height/blockDim.y)));
     dim3 gridDim(
@@ -37,6 +38,10 @@ Color* wrapper(Color* colors, int width, int height, double xMax, double xMin, d
     // int numBlocks = ceil((double)(width*height)/numThreads);
     findMandelbrotImage<<<gridDim, blockDim>>>(colors, width, height,xMin,xMax,yMin,yMax,limit, maxIterations);
     cudaDeviceSynchronize(); //WE NEED TO WAIT, OR ELSE IT RETURNS GARBAGE DATA
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        printf("Kernel launch failed: %s\n", cudaGetErrorString(err));
+    }
     return colors;
 } 
 
@@ -46,7 +51,7 @@ __device__ double calculateMandelbrot(cuDoubleComplex c, int limit, int maxItera
     int currentIterations = 0;
     cuDoubleComplex z = make_cuDoubleComplex(0.0, 0.0);
 
-    while(fabsf(cuCreal(z)) < limit and maxIterations > currentIterations)
+    while(cuCabs(z) < limit and maxIterations > currentIterations)
     {
         z = cuCadd(cuCmul(z,z), c);
         //z = (z * z) + c;
@@ -83,10 +88,4 @@ __device__ Color findColor(double iterationCount, int maxIterations)
 }
 
 
-double getTime(){
-    struct timeval t;
-    gettimeofday(&t, NULL);
-    return t.tv_sec + t.tv_usec/1000000.0;
-    
-}
 

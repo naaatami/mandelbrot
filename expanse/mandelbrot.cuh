@@ -10,4 +10,4 @@ __global__ void findMandelbrotImage(Color* colors, int width, int height, double
 __device__ Color findColor(double iterationCount, int maxIterations);
 
 
-Color* wrapper(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax, int limit, int maxIterations);
+Color* wrapper(int width, int height, double xMin, double xMax, double yMin, double yMax, int limit, int maxIterations);

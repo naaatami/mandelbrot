@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --job-name="mpi"
+#SBATCH --output="mpi.%j.%N.txt"
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=20
+#SBATCH --account=isu102
+#SBATCH --export=ALL
+#SBATCH -t 00:20:00
+
+srun -n 1 ./mpi 500 500 test.png
+srun -n 2 ./mpi 500 500 test.png
+srun -n 4 ./mpi 500 500 test.png
+srun -n 16 ./mpi 500 500 test.png
+srun -n 25 ./mpi 500 500 test.png
+srun -n 36 ./mpi 500 500 test.png
+srun -n 49 ./mpi 500 500 test.png
+
+srun -n 1 ./mpi 1000 1000 test.png
+srun -n 2 ./mpi 1000 1000 test.png
+srun -n 4 ./mpi 1000 1000 test.png
+srun -n 16 ./mpi 1000 1000 test.png
+srun -n 25 ./mpi 1000 1000 test.png
+srun -n 36 ./mpi 1000 1000 test.png
+srun -n 49 ./mpi 1000 1000 test.png
+
+srun -n 1 ./mpi 4000 4000 test.png
+srun -n 2 ./mpi 4000 4000 test.png
+srun -n 4 ./mpi 4000 4000 test.png
+srun -n 16 ./mpi 4000 4000 test.png
+srun -n 25 ./mpi 4000 4000 test.png
+srun -n 36 ./mpi 4000 4000 test.png
+srun -n 49 ./mpi 4000 4000 test.png
+
+
+
+

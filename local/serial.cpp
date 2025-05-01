@@ -1,4 +1,4 @@
-// compile with g++ mandelbrot.cpp -L/usr/X11R6/lib -lm -lpthread -lX11
+// compile with g++ serial.cpp -L/usr/X11R6/lib -lm -lpthread -lX11
 // also make sure cimg is installed
 // usage:
 #include "CImg.h"
@@ -6,10 +6,9 @@
 #include <cmath>
 #include <iostream>
 #include <climits>
-#include <iostream>
 #include <vector>
 #include <chrono>
-
+#include "time.h"
 using namespace cimg_library;
 using namespace std;
 
@@ -43,10 +42,10 @@ int main(int argc, char *argv[])
     // 0 floods the whole initial image with black (not sure this is true xd)
     CImg<float> mandelbrotImage(width, height, 1, 3, 0);
 
-    time_t start, end;
+    clock_t start, end;
     double elapsed;
 
-    time(&start);
+    start = clock();
 
 
     for(int x = 0; x < width; x++)
@@ -63,10 +62,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    time(&end);
+    end = clock();
 
-    elapsed = double(end - start);
-
+    elapsed = double(end - start)/CLOCKS_PER_SEC;
+    cout << "Total time to find: " << elapsed << endl;
     mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
 
     return 0;
