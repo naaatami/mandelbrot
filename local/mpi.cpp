@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     MPI_Gather(localColorArray, width * localHeight, MPI_COLOR_TYPE, gatheredColors, width * localHeight, MPI_COLOR_TYPE, 0, mainComm);
     delete[] localColorArray;
 
-    elapsedTime = MPI_Wtime() - startTime;
+    
 
     if(rank == 0)
     {
@@ -105,8 +105,9 @@ int main(int argc, char *argv[])
            }
          }
         delete[] gatheredColors;
-
+        
         mandelbrotImage.HSVtoRGB().save_png(filename.c_str());
+        elapsedTime = MPI_Wtime() - startTime;
         cout << "Total time to find: " << elapsedTime << endl;
     }
 
