@@ -38,9 +38,12 @@ int main(int argc, char *argv[])
     clock_t start, end;
     double elapsed;
     start = clock();
-    
+
+    //Init and process mandelbrot (kernel.cu)
     Color* colors;
     colors = wrapper(width, height, xMin, xMax, yMax, yMin, limit, maxIterations);
+
+    //Map colors to CImg output
     for(int x = 0; x < width; x++)
     {
         for(int y = 0; y < height; y++)
