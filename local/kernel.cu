@@ -1,42 +1,36 @@
-// nvcc -o mandelcu mandelbrot.cu
-
 #include "mandelbrot.cuh"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <math.h>
 
-
-__global__ void findMandelbrotImage(Color* colors, int width, int height, double xMin, double xMax, double yMin, double yMax, int limit, int maxIterations){
+__global__ void findMandelbrotImage(Color* colors, int width, int height, MandelbrotConstant constants)
+{
 
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
-    double xScaled = xMin + x*(xMax - xMin) / width;
-    double yScaled = yMin + y*(yMax - yMin) / height;
+    double xScaled = constants.xMin + x*(constants.xMax - constants.xMin) / width;
+    double yScaled = constants.yMin + y*(constants.yMax - constants.yMin) / height;
 
     if (x < width && y < height) {
         cuDoubleComplex c = make_cuDoubleComplex(xScaled, yScaled);
-        double iterationCount = calculateMandelbrot(c, limit, maxIterations);
-        Color color = findColor(iterationCount, maxIterations);
+        double iterationCount = calculateMandelbrot(c, constants.limit, constants.maxIterations);
+        Color color = findColor(iterationCount, constants.maxIterations);
         colors[y * width + x] = color;
-        // printf("test %f", colors[y * width + x].h);
     }
 }
 
 
-Color* wrapper(int width, int height, double xMax, double xMin, double yMax, double yMin, int limit, int maxIterations)
+Color* wrapper(int width, int height, MandelbrotConstant constants)
 {
     Color* colors;
     cudaMallocManaged(&colors, width * height * sizeof(Color));
     dim3 blockDim(32, 32); //each block will have 32x32 threads
-    // dim3 gridDim = (ceil(double(width/blockDim.x)), ceil(double(height/blockDim.y)));
     dim3 gridDim(
         (width + blockDim.x - 1) / blockDim.x,
         (height + blockDim.y - 1) / blockDim.y
     );
-    // dim3 gridDim((width+blockDim.x - 1)/ blockDim.x), (height+blockDim.y -1)/blockDim.y);
-    // int numBlocks = ceil((double)(width*height)/numThreads);
-    findMandelbrotImage<<<gridDim, blockDim>>>(colors, width, height,xMin,xMax,yMin,yMax,limit, maxIterations);
+    findMandelbrotImage<<<gridDim, blockDim>>>(colors, width, height, constants);
     cudaDeviceSynchronize(); //WE NEED TO WAIT, OR ELSE IT RETURNS GARBAGE DATA
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -86,6 +80,3 @@ __device__ Color findColor(double iterationCount, int maxIterations)
 
     return color;
 }
-
-
-

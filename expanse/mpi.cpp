@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     {
         if(argc != 4)
         {
-            cout << "Give me more arguments you loser!!\n";
+            cout << "Incorrect usage. Use " << argv[0] << " <width> <height> <filename.png> \n";
             return 0;
         }
 

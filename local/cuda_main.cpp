@@ -1,5 +1,6 @@
 #include "CImg.h"
 #include "Color.h"
+#include "MandelbrotConstant.h"
 #include <complex.h>
 #include <cmath>
 #include <iostream>
@@ -20,13 +21,11 @@ const int limit = 4;
 using namespace cimg_library;
 using namespace std;
 
-
 int main(int argc, char *argv[])
 {
-
     if(argc != 4)
     {
-        cout << "Give me more arguments you loser!!\n";
+        cout << "Incorrect usage. Use " << argv[0] << " <width> <height> <filename.png> \n";
         return 0;
     }
 
@@ -39,11 +38,14 @@ int main(int argc, char *argv[])
     double elapsed;
     start = clock();
 
-    //Init and process mandelbrot (kernel.cu)
-    Color* colors;
-    colors = wrapper(width, height, xMin, xMax, yMax, yMin, limit, maxIterations);
+    // initializing all mandelbrot constants
+    MandelbrotConstant constants = MandelbrotConstant{xMin, xMax, yMin, yMax, maxIterations, limit};
 
-    //Map colors to CImg output
+    // init and process mandelbrot (kernel.cu)
+    Color* colors;
+    colors = wrapper(width, height, constants);
+
+    // map colors to CImg output
     for(int x = 0; x < width; x++)
     {
         for(int y = 0; y < height; y++)
