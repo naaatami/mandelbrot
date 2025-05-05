@@ -3,10 +3,11 @@
 #SBATCH --output="mpi.%j.%N.txt"
 #SBATCH --partition=compute
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=20
+#SBATCH --ntasks-per-node=49
 #SBATCH --account=isu102
 #SBATCH --export=ALL
 #SBATCH -t 00:20:00
+set -x
 
 srun -n 1 ./mpi 500 500 test.png
 srun -n 2 ./mpi 500 500 test.png
@@ -31,7 +32,3 @@ srun -n 16 ./mpi 4000 4000 test.png
 srun -n 25 ./mpi 4000 4000 test.png
 srun -n 36 ./mpi 4000 4000 test.png
 srun -n 49 ./mpi 4000 4000 test.png
-
-
-
-

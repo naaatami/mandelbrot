@@ -14,7 +14,7 @@
 
 **MPI version**
 - Compile with `mpicxx -o mpi -g -Wall mpi.cpp -L/usr/X11R6/lib -lm -lpthread -lX11`
-- Run with `./mpi <width> <height> <filename.png>`
+- Run with `mpiexec --n <processors> ./mpi <width> <height> <name>`
 
 **CUDA version**
 - Simply use the makefile: `make`
