@@ -3,6 +3,7 @@
 ### Mandelbrot image generation
 This program generates images of the Mandelbrot. This is an example output image:
 <img src="https://github.com/user-attachments/assets/85a17387-5620-49cd-a393-92ca0c38c969" width=50% height=50%>
+
 The two main subfolders, `expanse` and `local`, are for usage on the Expanse supercomputer versus a local home computer. The local folder will probably have what you need. Both folders contain three versions of the code. The first version, the serial version, simply calculates the Mandelbrot point by point. The MPI version parallelizes and splits the work between CPU cores, resulting in a speedup at a large enough size. The CUDA version also parallelizes the Mandelbrot generation using your GPU!
 
 ### How does it work?
