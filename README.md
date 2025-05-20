@@ -1,5 +1,19 @@
 ![image](https://github.com/user-attachments/assets/0d5e3759-b1a3-4cd6-8f6c-258e4557d83a)
 
+### Mandelbrot image generation
+This program generates images of the Mandelbrot. This is an example output image:
+<img src="https://github.com/user-attachments/assets/85a17387-5620-49cd-a393-92ca0c38c969" width=50% height=50%>
+The two main subfolders, `expanse` and `local`, are for usage on the Expanse supercomputer versus a local home computer. The local folder will probably have what you need. Both folders contain three versions of the code. The first version, the serial version, simply calculates the Mandelbrot point by point. The MPI version parallelizes and splits the work between CPU cores, resulting in a speedup at a large enough size. The CUDA version also parallelizes the Mandelbrot generation using your GPU!
+
+### How does it work?
+The serial version simply generates the Mandelbrot as usual. Each point is calculated to see if it goes out to infinity or not, and if not, the point is colored black. Otherwise, the point is colored based on the amount of iterations it took to determine that it's not part of the set. The more iterations it took, the more pink it is colored.
+
+The MPI version has each core calculate a different section of the final image. A new MPI datatype, MPI_COLOR_TYPE, was created in order for the information to be transmitted. Rank 0 then collects the data and generates the final image.
+
+The CUDA version has four files - cuda_main.cpp, mandelbrot.cuh, kernel.cu, and Color.h. cuda_main.cpp is simply used to call kernel.cu, and handles the final image saving. mandelbrot.cuh is a header file for kernel.cu, and Color.h defines the color struct used across the other three files. kernel.cu is the meat of the CUDA section. The kernel function `findMandelbrotImage` finds the color for a point depending on the thread's coordinate in the block system. 
+
+All versions additionally report the amount of time it took to calculate the Mandelbrot image.
+
 ### Differences between the local and Expanse version
 - `save_png()` is commented out on Expanse, since it does not work 
 - Normalization is not done on the MPI and serial version on Expanse, but is for the local version
